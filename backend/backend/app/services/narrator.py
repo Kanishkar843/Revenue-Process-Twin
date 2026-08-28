@@ -1,8 +1,10 @@
 """
 narrator.py — Evidence-grounded narrative generator for the Revenue Process Twin.
 
-Uses Ollama (revenue-qwen35-4b:latest) when NARRATOR_MODE=live, otherwise builds a rich
-intent-aware deterministic narrative from evidence/RAG data.
+Supports:
+  1. Groq Cloud API (GROQ_API_KEY) — High performance cloud LLM (llama-3.3-70b-versatile)
+  2. Ollama (revenue-qwen35-4b:latest) — Local GPU LLM fallback
+  3. Intent-Aware Deterministic Fallback — Safe zero-downtime execution
 """
 import os
 import json
@@ -35,7 +37,61 @@ def _fmt(paise: int) -> str:
     return f"₹{rs:.2f}"
 
 
-def _call_ollama(evidence_json: Optional[Dict[str, Any]], query: str, rag_context: str = "", intent: str = "") -> str | None:
+def _call_groq(evidence_json: Optional[Dict[str, Any]], query: str, rag_context: str = "", intent: str = "") -> Optional[str]:
+    """Call Groq Cloud API if GROQ_API_KEY is available. Returns None on failure or missing key."""
+    api_key = os.environ.get("GROQ_API_KEY", "").strip()
+    if not api_key:
+        return None
+
+    model = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile").strip()
+    url = "https://api.groq.com/openai/v1/chat/completions"
+
+    context_str = ""
+    if rag_context:
+        context_str += f"Policy/Knowledge Context:\n{rag_context}\n\n"
+    if evidence_json:
+        context_str += f"Database Evidence:\n{json.dumps(evidence_json, indent=2)}\n\n"
+
+    user_content = (
+        f"{context_str}"
+        f"User Question: {query}\n\n"
+        f"Provide a clear, direct, narrative answer:"
+    )
+
+    payload = json.dumps({
+        "model": model,
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_content}
+        ],
+        "temperature": 0.2,
+        "max_tokens": 350
+    }).encode("utf-8")
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+
+    try:
+        req = urllib.request.Request(url, data=payload, headers=headers)
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            res_data = json.loads(resp.read().decode("utf-8"))
+            choices = res_data.get("choices", [])
+            if choices and len(choices) > 0:
+                answer = choices[0].get("message", {}).get("content", "").strip()
+                if answer:
+                    log.info("Groq Cloud LLM narrative generated (%d chars) for intent %s", len(answer), intent)
+                    return answer
+            log.warning("Groq API returned empty response choices")
+    except urllib.error.URLError as e:
+        log.warning("Groq API connection error: %s", e)
+    except Exception as e:
+        log.warning("Groq API error: %s", e)
+    return None
+
+
+def _call_ollama(evidence_json: Optional[Dict[str, Any]], query: str, rag_context: str = "", intent: str = "") -> Optional[str]:
     """Try to get an AI narrative from Ollama. Returns None on failure."""
     host = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
     model = os.environ.get("OLLAMA_MODEL", "revenue-qwen35-4b:latest")
@@ -66,7 +122,7 @@ def _call_ollama(evidence_json: Optional[Dict[str, Any]], query: str, rag_contex
 
     try:
         req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=5) as resp:
             result = json.loads(resp.read().decode("utf-8"))
             answer = result.get("response", "").strip()
             if answer:
@@ -81,7 +137,7 @@ def _call_ollama(evidence_json: Optional[Dict[str, Any]], query: str, rag_contex
 
 
 def _build_intent_fallback(intent: str, query: str, evidence: Optional[Dict[str, Any]], rag_context: str) -> str:
-    """Build intent-specific fallback narrative when Ollama is offline or unneeded."""
+    """Build intent-specific fallback narrative when AI services are offline or unneeded."""
     if intent == "GENERAL_GREETING":
         return "Hello! I'm the Revenue Process Twin Narrator. How can I help you with customer risks, leakage patterns, or recovery opportunities today?"
 
@@ -92,7 +148,7 @@ def _build_intent_fallback(intent: str, query: str, evidence: Optional[Dict[str,
         return "I can help you explore customer risk profiles, audit invoices and payments, explain leakage rule breaches, search discount policies, and calculate net recoverable revenue."
 
     if intent == "SYSTEM_STATUS":
-        return "The Revenue Process Twin is active, fully synced with the local SQLite database, and connected to the GPU-accelerated Hugging Face Qwen LLM engine."
+        return "The Revenue Process Twin is active, fully synced with the database, and connected to the intelligent LLM narrative engine."
 
     if intent == "POLICY_QUESTION" and rag_context:
         return f"Based on enterprise policy: {rag_context}"
@@ -133,23 +189,28 @@ def narrator(
     """
     Main narrative entrypoint.
     Determines response based on intent, evidence, and RAG knowledge.
+    Order of precedence:
+      1. Groq Cloud API (if GROQ_API_KEY is configured)
+      2. Ollama Local LLM (if running)
+      3. Intent-Aware Deterministic Fallback
     """
-    mode = os.environ.get("NARRATOR_MODE", "live").lower()
     answer = None
+    provider = "fallback"
 
-    # For conversational intents (greetings, identity, help, status), return direct response if live model unavailable
-    if intent in ["GENERAL_GREETING", "IDENTITY", "HELP", "SYSTEM_STATUS"]:
-        if mode == "live":
-            answer = _call_ollama(evidence_json=None, query=query, intent=intent)
-        if not answer:
-            answer = _build_intent_fallback(intent, query, evidence_json, rag_context)
+    # Step 1: Try Groq Cloud API
+    answer = _call_groq(evidence_json, query, rag_context=rag_context, intent=intent)
+    if answer:
+        provider = "groq"
 
-    else:
-        if mode == "live":
-            answer = _call_ollama(evidence_json, query, rag_context=rag_context, intent=intent)
+    # Step 2: Fallback to Ollama if Groq not available or failed
+    if not answer:
+        answer = _call_ollama(evidence_json, query, rag_context=rag_context, intent=intent)
+        if answer:
+            provider = "ollama"
 
-        if not answer:
-            answer = _build_intent_fallback(intent, query, evidence_json, rag_context)
+    # Step 3: Fallback to Deterministic Structured Narrative
+    if not answer:
+        answer = _build_intent_fallback(intent, query, evidence_json, rag_context)
 
     leak_paise = evidence_json.get("leak_amount_paise", 0) if evidence_json else 0
     leak_rs = leak_paise / 100.0 if leak_paise else 0.0
@@ -162,7 +223,7 @@ def narrator(
         "narrative": answer,
         "intent": intent,
         "evidence": evidence_json,
-        "mode": "live" if answer and mode == "live" else "fallback",
+        "mode": provider,
         "leak_amount_rs": int(leak_rs),
         "recovery_estimate_rs": int(rec_rs),
         "process_break": (evidence_json.get("process_break_step") if evidence_json else None) or "Process Break",

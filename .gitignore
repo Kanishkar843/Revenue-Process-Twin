@@ -13,8 +13,9 @@ data/final/*.db
 *.zip
 
 # 2. Trained ML Models & Heavy LLM Weights
-ml/models/
-models/
+/ml/models/
+/models/
+!**/app/models/
 *.pkl
 *.joblib
 *.h5

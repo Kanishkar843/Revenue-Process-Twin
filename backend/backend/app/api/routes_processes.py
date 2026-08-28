@@ -1,22 +1,24 @@
 import sqlite3
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from app.db.connection import get_connection, get_db_path
 from app.services.conformance_engine import evaluate_conformance
+from app.services.auth_service import get_current_user
 
 router = APIRouter()
 
 @router.get("/api/processes")
-def get_process_health():
+def get_process_health(current_user: dict = Depends(get_current_user)):
     """Returns real process twin health metrics derived from SQLite database and conformance engine."""
+    user_id = current_user["sub"]
     db_path = get_db_path()
-    raw_devs = evaluate_conformance(db_path)
+    raw_devs = evaluate_conformance(db_path, user_id=user_id)
     
     with get_connection() as conn:
         cursor = conn.cursor()
-        total_txns = cursor.execute("SELECT COUNT(*) FROM transactions;").fetchone()[0]
-        total_inv_vol = float(cursor.execute("SELECT COALESCE(SUM(amount_paise), 0) FROM invoices;").fetchone()[0]) / 100.0
-        total_txn_vol = float(cursor.execute("SELECT COALESCE(SUM(amount_paise), 0) FROM transactions;").fetchone()[0]) / 100.0
-        total_ren_vol = float(cursor.execute("SELECT COALESCE(SUM(plan_mrr_paise * 12), 0) FROM customers;").fetchone()[0]) / 100.0
+        total_txns = cursor.execute("SELECT COUNT(*) FROM transactions WHERE user_id = ?;", (user_id,)).fetchone()[0]
+        total_inv_vol = float(cursor.execute("SELECT COALESCE(SUM(amount_paise), 0) FROM invoices WHERE user_id = ?;", (user_id,)).fetchone()[0]) / 100.0
+        total_txn_vol = float(cursor.execute("SELECT COALESCE(SUM(amount_paise), 0) FROM transactions WHERE user_id = ?;", (user_id,)).fetchone()[0]) / 100.0
+        total_ren_vol = float(cursor.execute("SELECT COALESCE(SUM(plan_mrr_paise * 12), 0) FROM customers WHERE user_id = ?;", (user_id,)).fetchone()[0]) / 100.0
         
         # Categorize violations by rule
         r_counts = {}

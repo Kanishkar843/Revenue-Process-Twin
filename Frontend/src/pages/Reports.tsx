@@ -98,20 +98,22 @@ export default function Reports() {
           <div className="grid grid-cols-1 gap-4">
             {[
               {
-                id: "REP-LIVE-2026",
+                id: "REP-EXECUTIVE-BOARD",
                 title: "Executive Revenue Leakage & Recovery Deck",
-                period: "Live Engine Sync",
+                period: "Live Database Audit",
                 totalLeakageRs: totalLeakage,
                 recoveredRs: totalRecovered,
                 criticalAlerts: activeAlerts,
+                description: "Comprehensive financial audit deck covering all detected process deviations and recovery actions."
               },
               {
-                id: "REP-CONF-2026",
-                title: "Deterministic Process Conformance & Audit Summary",
-                period: "Current Cycle",
-                totalLeakageRs: Math.round(totalLeakage * 0.7),
-                recoveredRs: Math.round(totalRecovered * 0.7),
-                criticalAlerts: Math.max(1, Math.round(activeAlerts * 0.6)),
+                id: "REP-CONFORMANCE-AUDIT",
+                title: "Deterministic Process Conformance Ledger",
+                period: "Golden Flow Engine",
+                totalLeakageRs: totalLeakage,
+                recoveredRs: totalRecovered,
+                criticalAlerts: activeAlerts,
+                description: "Full event-level audit ledger mapping rule breaches across GF01-GF08 process flows."
               }
             ].map((report) => (
               <motion.div
@@ -131,10 +133,11 @@ export default function Reports() {
                         {report.period}
                       </span>
                     </div>
-                    <div className="text-xs text-[var(--color-muted)] mt-1 flex items-center gap-4">
-                      <span>Leakage: <strong className="text-red-600">{formatINR(report.totalLeakageRs)}</strong></span>
-                      <span>Recovered: <strong className="text-emerald-600">{formatINR(report.recoveredRs)}</strong></span>
-                      <span>{report.criticalAlerts} Critical Alerts</span>
+                    <p className="text-xs text-gray-500 mt-1">{report.description}</p>
+                    <div className="text-xs text-[var(--color-muted)] mt-2 flex flex-wrap items-center gap-4">
+                      <span>Audited Leakage: <strong className="text-red-600 font-semibold">{formatINR(report.totalLeakageRs)}</strong></span>
+                      <span>Recoverable: <strong className="text-emerald-600 font-semibold">{formatINR(report.recoveredRs)}</strong></span>
+                      <span><strong className="text-gray-900 font-semibold">{report.criticalAlerts}</strong> Critical Alerts</span>
                     </div>
                   </div>
                 </div>

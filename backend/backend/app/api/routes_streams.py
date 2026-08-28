@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime
 from typing import Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import APIRouter, HTTPException, Body, Depends
 from app.db.connection import get_connection
+from app.services.auth_service import get_current_user
 
 router = APIRouter()
 
@@ -102,22 +103,24 @@ def stop_stream(stream_id: str):
     return {"stream_id": stream_id, "status": "stopped"}
 
 @router.get("/api/streams/events/recent")
-def get_recent_stream_events(limit: int = 30):
+def get_recent_stream_events(limit: int = 30, current_user: dict = Depends(get_current_user)):
     """Get recent real stream events from SQLite event_log table."""
+    user_id = current_user["sub"]
     with get_connection() as conn:
         cursor = conn.cursor()
-        total_events = cursor.execute("SELECT COUNT(*) FROM event_log;").fetchone()[0]
+        total_events = cursor.execute("SELECT COUNT(*) FROM event_log WHERE user_id = ?;", (user_id,)).fetchone()[0]
         
         rows = cursor.execute("""
             SELECT e.event_id, e.entity_id, e.entity_type, e.event_type, e.event_ts, e.created_at
             FROM event_log e
+            WHERE e.user_id = ?
             ORDER BY e.event_id DESC
             LIMIT ?;
-        """, (limit,)).fetchall()
+        """, (user_id, limit)).fetchall()
         
         # Cache amounts for entities
-        inv_amounts = {r["invoice_id"]: float(r["amount_paise"]) / 100.0 for r in cursor.execute("SELECT invoice_id, amount_paise FROM invoices;").fetchall()}
-        txn_amounts = {r["txn_id"]: float(r["amount_paise"]) / 100.0 for r in cursor.execute("SELECT txn_id, amount_paise FROM transactions;").fetchall()}
+        inv_amounts = {r["invoice_id"]: float(r["amount_paise"]) / 100.0 for r in cursor.execute("SELECT invoice_id, amount_paise FROM invoices WHERE user_id = ?;", (user_id,)).fetchall()}
+        txn_amounts = {r["txn_id"]: float(r["amount_paise"]) / 100.0 for r in cursor.execute("SELECT txn_id, amount_paise FROM transactions WHERE user_id = ?;", (user_id,)).fetchall()}
 
         events = []
         for r in rows:

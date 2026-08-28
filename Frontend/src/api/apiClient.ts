@@ -268,9 +268,16 @@ export async function uploadDataset(
   const formData = new FormData();
   formData.append("file", file);
 
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `${BASE}/api/upload`);
+
+    if (token) {
+      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    }
 
     xhr.upload.addEventListener("progress", (e) => {
       if (e.lengthComputable && onProgress) {
@@ -307,7 +314,15 @@ export async function uploadDataset(
 
 export async function downloadExportFile(url: string, defaultFilename: string): Promise<void> {
   const fullUrl = `${BASE}${url}`;
-  const res = await fetch(fullUrl);
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(fullUrl, { headers });
   if (!res.ok) {
     let errText = "Unable to generate export. Please try again.";
     try {

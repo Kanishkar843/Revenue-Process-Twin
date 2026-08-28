@@ -2,7 +2,7 @@ import sqlite3
 import json
 from typing import List, Dict, Any
 
-def evaluate_conformance(db_path: str, customer_id: str = None) -> List[Dict[str, Any]]:
+def evaluate_conformance(db_path: str, customer_id: str = None, user_id: str = None) -> List[Dict[str, Any]]:
     """
     Evaluates Golden Flows GF01-GF08 for one or all customers based on event_log and DB state.
     Returns structured deviation dictionaries.
@@ -13,6 +13,14 @@ def evaluate_conformance(db_path: str, customer_id: str = None) -> List[Dict[str
 
     deviations = []
 
+    params_cust = [customer_id] if customer_id else []
+    where_user = "WHERE i.user_id = ?" if user_id else ""
+    where_user_c = "WHERE c.user_id = ?" if user_id else ""
+    where_user_r = "WHERE r.user_id = ?" if user_id else ""
+    where_user_t = "WHERE t.user_id = ?" if user_id else ""
+
+    params_u = [user_id] if user_id else []
+
     # GF01: Invoice Payment SLA (INVOICE_ISSUED -> PAYMENT_SUCCEEDED within SLA)
     query_gf01 = f"""
         SELECT i.customer_id, i.invoice_id, i.issue_date, i.due_date, MAX(i.amount_paise) as amount_paise, i.status,
@@ -21,10 +29,13 @@ def evaluate_conformance(db_path: str, customer_id: str = None) -> List[Dict[str
         LEFT JOIN payments p ON i.invoice_id = p.invoice_id AND p.status IN ('success', 'duplicate')
         WHERE i.status IN ('issued', 'overdue') AND p.payment_ts IS NULL
         {"AND i.customer_id = ?" if customer_id else ""}
+        {"AND i.user_id = ?" if user_id else ""}
         GROUP BY i.customer_id
     """
-    params = [customer_id] if customer_id else []
-    cursor.execute(query_gf01, params)
+    p_gf01 = []
+    if customer_id: p_gf01.append(customer_id)
+    if user_id: p_gf01.append(user_id)
+    cursor.execute(query_gf01, p_gf01)
     rows_gf01 = cursor.fetchall()
     for row in rows_gf01:
         leak_paise = row["total_overdue_paise"]
@@ -42,14 +53,16 @@ def evaluate_conformance(db_path: str, customer_id: str = None) -> List[Dict[str
             "evidence": f"Customer {row['customer_id']} has {row['total_overdue_invoices']} unpaid invoice(s) past due date (Primary invoice {row['invoice_id']} issued on {row['issue_date']})."
         })
 
-    # GF02: Discount Approval Gate (DISCOUNT_APPLIED -> DISCOUNT_APPROVED before ISSUED)
+    # GF02: Discount Approval Gate
     query_gf02 = f"""
         SELECT i.invoice_id, i.customer_id, i.issue_date, i.amount_paise, i.discount_pct, c.plan
         FROM invoices i
         JOIN customers c ON i.customer_id = c.customer_id
-        {"WHERE i.customer_id = ?" if customer_id else ""}
+        WHERE 1=1
+        {"AND i.customer_id = ?" if customer_id else ""}
+        {"AND i.user_id = ?" if user_id else ""}
     """
-    cursor.execute(query_gf02, params)
+    cursor.execute(query_gf02, p_gf01)
     rows_gf02 = cursor.fetchall()
     
     for row in rows_gf02:
@@ -77,14 +90,16 @@ def evaluate_conformance(db_path: str, customer_id: str = None) -> List[Dict[str
                     "evidence": f"Discount {int(row['discount_pct']*100)}% applied on invoice {row['invoice_id']} without approval record."
                 })
 
-    # GF03: Renewal Lifecycle (RENEWAL_DUE -> RENEWAL_SUCCEEDED)
+    # GF03: Renewal Lifecycle
     query_gf03 = f"""
         SELECT r.renewal_id, r.customer_id, r.due_date, r.status, c.plan_mrr_paise
         FROM renewals r
         JOIN customers c ON r.customer_id = c.customer_id
-        {"WHERE r.customer_id = ?" if customer_id else ""}
+        WHERE 1=1
+        {"AND r.customer_id = ?" if customer_id else ""}
+        {"AND r.user_id = ?" if user_id else ""}
     """
-    cursor.execute(query_gf03, params)
+    cursor.execute(query_gf03, p_gf01)
     rows_gf03 = cursor.fetchall()
     for row in rows_gf03:
         if row["status"] == "missed":
@@ -109,8 +124,9 @@ def evaluate_conformance(db_path: str, customer_id: str = None) -> List[Dict[str
         FROM transactions t
         WHERE t.type = 'refund'
         {"AND t.customer_id = ?" if customer_id else ""}
+        {"AND t.user_id = ?" if user_id else ""}
     """
-    cursor.execute(query_gf04, params)
+    cursor.execute(query_gf04, p_gf01)
     rows_gf04 = cursor.fetchall()
     for row in rows_gf04:
         cursor.execute(
@@ -139,10 +155,11 @@ def evaluate_conformance(db_path: str, customer_id: str = None) -> List[Dict[str
         FROM payments
         WHERE status IN ('success', 'duplicate')
         {"AND customer_id = ?" if customer_id else ""}
+        {"AND user_id = ?" if user_id else ""}
         GROUP BY invoice_id
         HAVING pay_count > 1
     """
-    cursor.execute(query_gf05, params)
+    cursor.execute(query_gf05, p_gf01)
     rows_gf05 = cursor.fetchall()
     for row in rows_gf05:
         dup_paise = int(row["total_paise"] / row["pay_count"]) * (row["pay_count"] - 1)
@@ -167,8 +184,9 @@ def evaluate_conformance(db_path: str, customer_id: str = None) -> List[Dict[str
         JOIN customers c ON i.customer_id = c.customer_id
         WHERE c.segment = 'enterprise' AND i.discount_pct > 0.20 AND (i.contract_ref IS NULL OR i.contract_ref = '')
         {"AND c.customer_id = ?" if customer_id else ""}
+        {"AND i.user_id = ?" if user_id else ""}
     """
-    cursor.execute(query_gf06, params)
+    cursor.execute(query_gf06, p_gf01)
     rows_gf06 = cursor.fetchall()
     for row in rows_gf06:
         leak_paise = int(row["amount_paise"] * row["discount_pct"])
@@ -193,8 +211,9 @@ def evaluate_conformance(db_path: str, customer_id: str = None) -> List[Dict[str
         JOIN customers c ON r.customer_id = c.customer_id
         WHERE r.status = 'failed_payment' AND r.attempt_count >= 2
         {"AND r.customer_id = ?" if customer_id else ""}
+        {"AND r.user_id = ?" if user_id else ""}
     """
-    cursor.execute(query_gf07, params)
+    cursor.execute(query_gf07, p_gf01)
     rows_gf07 = cursor.fetchall()
     for row in rows_gf07:
         leak_paise = row["plan_mrr_paise"] * 6
@@ -217,11 +236,13 @@ def evaluate_conformance(db_path: str, customer_id: str = None) -> List[Dict[str
         SELECT t.customer_id, c.name, c.plan_mrr_paise
         FROM transactions t
         JOIN customers c ON t.customer_id = c.customer_id
-        {"WHERE t.customer_id = ?" if customer_id else ""}
+        WHERE 1=1
+        {"AND t.customer_id = ?" if customer_id else ""}
+        {"AND t.user_id = ?" if user_id else ""}
         GROUP BY t.customer_id
         HAVING COUNT(*) >= 1
     """
-    cursor.execute(query_gf08, params)
+    cursor.execute(query_gf08, p_gf01)
     rows_gf08 = cursor.fetchall()
     for row in rows_gf08:
         leak_paise = row["plan_mrr_paise"] * 3 if row["plan_mrr_paise"] > 0 else 21000000
@@ -242,8 +263,8 @@ def evaluate_conformance(db_path: str, customer_id: str = None) -> List[Dict[str
     conn.close()
     return deviations
 
-def conformance_score(db_path: str, customer_id: str) -> float:
-    devs = evaluate_conformance(db_path, customer_id=customer_id)
+def conformance_score(db_path: str, customer_id: str = None, user_id: str = None) -> float:
+    devs = evaluate_conformance(db_path, customer_id=customer_id, user_id=user_id)
     if not devs:
         return 1.0
     

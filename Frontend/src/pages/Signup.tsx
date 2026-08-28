@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Shield, ArrowRight, Lock, Mail, User, Building2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Shield, ArrowRight, Lock, Mail, User, Building2, MailCheck } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 function GoogleLogo() {
@@ -17,7 +17,6 @@ function GoogleLogo() {
 }
 
 export default function Signup() {
-  const navigate = useNavigate();
   const { signUpWithEmail, signInWithGoogle } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -26,6 +25,12 @@ export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** After submitting the form Supabase sends a confirmation email.
+   *  We show a "Check your inbox" screen instead of navigating directly.
+   *  The actual routing (→ /onboarding) happens in /auth/callback once
+   *  the user clicks the Supabase confirmation link.
+   */
+  const [verificationSent, setVerificationSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,8 +38,7 @@ export default function Signup() {
     setError(null);
     try {
       await signUpWithEmail(email, password, name, company);
-      // After signup, go to onboarding to set up business profile
-      navigate("/onboarding");
+      setVerificationSent(true);
     } catch (err: any) {
       setError(err.message || "Signup failed. Please try again.");
     } finally {
@@ -47,12 +51,58 @@ export default function Signup() {
     setError(null);
     try {
       await signInWithGoogle();
+      // Supabase redirects to /auth/callback which does the routing
     } catch (err: any) {
       setError(err.message || "Google sign-up failed.");
       setIsGoogleLoading(false);
     }
   };
 
+  // ── Email verification sent screen ───────────────────────────────────────
+  if (verificationSent) {
+    return (
+      <div className="min-h-screen bg-[var(--color-surface)] flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+          className="bg-white max-w-md w-full rounded-2xl shadow-[var(--shadow-elevation-2)] border border-[var(--color-border)] p-10 text-center"
+        >
+          <div className="mx-auto mb-5 w-16 h-16 rounded-full bg-green-50 flex items-center justify-center">
+            <MailCheck size={32} className="text-green-500" />
+          </div>
+          <h2 className="text-xl font-bold text-[var(--color-ink)] mb-2">Check your inbox</h2>
+          <p className="text-sm text-[var(--color-muted)] mb-1">
+            We sent a confirmation link to
+          </p>
+          <p className="text-sm font-semibold text-[var(--color-ink)] mb-6 break-all">{email}</p>
+          <div className="bg-[var(--color-surface)] rounded-xl px-4 py-3 text-xs text-[var(--color-muted)] text-left space-y-1.5 mb-6">
+            <p className="font-semibold text-[var(--color-ink)] mb-1">What happens next</p>
+            <p>① Click the link in the email to verify your account.</p>
+            <p>② You'll be taken to the <strong>Business Setup</strong> page.</p>
+            <p>③ Connect your revenue data.</p>
+            <p>④ Your personalised Dashboard will be ready.</p>
+          </div>
+          <p className="text-xs text-gray-400">
+            Didn't receive it? Check your spam folder, or{" "}
+            <button
+              onClick={() => setVerificationSent(false)}
+              className="text-[var(--color-accent)] hover:underline font-medium"
+            >
+              go back and try again
+            </button>
+            .
+          </p>
+          <div className="mt-6 border-t border-[var(--color-border)] pt-4 flex items-center justify-center gap-1.5 text-[10px] text-gray-400">
+            <Shield size={11} />
+            Your data is encrypted and never shared
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ── Signup form ───────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[var(--color-surface)] overflow-y-auto flex flex-col justify-start py-10 px-4 relative">
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-[var(--color-accent-light)] rounded-full blur-3xl opacity-60 pointer-events-none" />
@@ -86,7 +136,7 @@ export default function Signup() {
         >
           {/* Step progress pills */}
           <div className="mb-7 flex items-center justify-center gap-1 flex-wrap">
-            {["Create Account", "Business Setup", "Connect Data", "Dashboard"].map((s, i) => (
+            {["Create Account", "Verify Email", "Connect Data", "Dashboard"].map((s, i) => (
               <div key={s} className="flex items-center gap-1">
                 <span className={`text-[10px] font-semibold px-2.5 py-1.5 rounded-full ${i === 0 ? "bg-[var(--color-ink)] text-white" : "bg-gray-100 text-gray-400"}`}>
                   {i === 0 ? "● " : `${i + 1}. `}{s}
@@ -135,7 +185,7 @@ export default function Signup() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Dharanish Purusothaman"
+                    placeholder="e.g. Kanishkar M"
                     className="block w-full pl-9 pr-3 py-2.5 text-sm border border-[var(--color-border)] rounded-xl focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent outline-none transition-all"
                   />
                 </div>
@@ -213,7 +263,7 @@ export default function Signup() {
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  Create Account & Set Up Workspace
+                  Create Account & Send Verification Email
                   <ArrowRight size={16} />
                 </>
               )}

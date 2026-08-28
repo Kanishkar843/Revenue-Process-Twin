@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Shield, ArrowRight, Lock, Mail } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabaseClient";
 
 function GoogleLogo() {
   return (
@@ -31,7 +32,23 @@ export default function Login() {
     setError(null);
     try {
       await signInWithEmail(email, password);
-      navigate("/app");
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? ""}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        if (res.ok) {
+          const profile = await res.json();
+          if (profile.has_data) {
+            navigate("/app");
+          } else {
+            navigate("/onboarding");
+          }
+          return;
+        }
+      }
+      navigate("/app"); // fallback
     } catch (err: any) {
       setError(err.message || "Invalid email or password. Please try again.");
     } finally {

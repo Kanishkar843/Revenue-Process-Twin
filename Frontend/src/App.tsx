@@ -1,7 +1,7 @@
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate, useNavigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -20,6 +20,7 @@ import type { AuditLogEntry } from "./types/interfaces";
 import { getPageVariants } from "./lib/motion";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { supabase } from "./lib/supabaseClient";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,7 +30,34 @@ const queryClient = new QueryClient({
 
 // Handles Supabase OAuth callback — Supabase SDK picks up token from URL automatically
 function AuthCallback() {
-  return <Navigate to="/app" replace />;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          const res = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? ""}/api/auth/me`, {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+          if (res.ok) {
+            const profile = await res.json();
+            if (profile.has_data) {
+              navigate("/app", { replace: true });
+              return;
+            }
+          }
+        }
+      } catch (err) { }
+      navigate("/onboarding", { replace: true });
+    })();
+  }, [navigate]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[var(--color-surface)]">
+      <div className="w-10 h-10 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 }
 
 function AnimatedRoutes() {

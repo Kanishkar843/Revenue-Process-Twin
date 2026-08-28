@@ -139,6 +139,9 @@ def me(current_user: dict = Depends(get_current_user)):
         row = conn.execute(
             "SELECT * FROM business_profiles WHERE user_id = ?", (user_id,)
         ).fetchone()
+        cust_count = conn.execute(
+            "SELECT COUNT(*) FROM customers WHERE user_id = ?", (user_id,)
+        ).fetchone()[0]
 
     profile = dict(row) if row else {}
     return {
@@ -150,6 +153,7 @@ def me(current_user: dict = Depends(get_current_user)):
         "company_size": profile.get("company_size", ""),
         "revenue_model": profile.get("revenue_model", ""),
         "currency": profile.get("currency", "INR (₹)"),
+        "has_data": cust_count > 0,
     }
 
 

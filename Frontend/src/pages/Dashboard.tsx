@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, TrendingDown, BadgeDollarSign, Activity } from "lucide-react";
 import { PageShell } from "../components/layout/PageShell";
@@ -16,6 +17,7 @@ import { useAlerts } from "../hooks/useAlerts";
 import { formatINRShort, formatDate } from "../lib/format";
 import { useCountUp } from "../lib/useCountUp";
 import { getFadeUp, staggerContainer } from "../lib/motion";
+import { supabase } from "../lib/supabaseClient";
 import type { RecoverableSummary } from "../types/interfaces";
 
 function AnimatedMoney({ value, accent }: { value: number; accent?: boolean }) {
@@ -30,6 +32,29 @@ export default function Dashboard() {
 
   const isLoading = sLoading || aLoading;
   const fadeUp = getFadeUp();
+
+  /**
+   * Guard: if the authenticated user has no data yet (new user who somehow
+   * hit /app directly), redirect them to /onboarding.
+   */
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          const res = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? ""}/api/auth/me`, {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+          if (res.ok) {
+            const profile = await res.json();
+            if (!profile.has_data) {
+              navigate("/onboarding", { replace: true });
+            }
+          }
+        }
+      } catch (_) { }
+    })();
+  }, [navigate]);
 
   // Derive trend data — use trend_60d if available, else trend_30d
   const trendData = (summary as (RecoverableSummary & { trend_60d?: RecoverableSummary["trend_30d"] }) | undefined)?.trend_60d

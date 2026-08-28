@@ -61,12 +61,12 @@ export default function LiveMonitor() {
       />
 
       <div className="p-6 space-y-6">
-        {/* Status Strip */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="card p-4 flex items-center justify-between">
             <div>
-              <div className="text-xs text-[var(--color-muted)] font-semibold">Ingestion Status</div>
-              <div className="text-lg font-bold text-[var(--color-ink)] flex items-center gap-2 mt-1">
+              <div className="text-xs text-[var(--color-muted)] font-semibold">Stream Engine Status</div>
+              <div className="text-sm font-bold text-emerald-600 mt-1 flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 {isLive ? "Active / Listening" : "Paused"}
               </div>
@@ -80,16 +80,6 @@ export default function LiveMonitor() {
               <div className="text-lg font-bold text-[var(--color-ink)] font-display mt-1">{totalCount.toLocaleString()}</div>
             </div>
             <Activity size={24} className="text-emerald-600 opacity-80" />
-          </div>
-
-          <div className="card p-4 flex items-center justify-between">
-            <div>
-              <div className="text-xs text-[var(--color-muted)] font-semibold">Stream Endpoint</div>
-              <div className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-700 mt-1">
-                POST /api/streams/STR-001/events
-              </div>
-            </div>
-            <Zap size={24} className="text-amber-500 opacity-80" />
           </div>
         </div>
 

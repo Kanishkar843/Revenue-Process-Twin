@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Download } from "lucide-react";
 import { PageShell } from "../components/layout/PageShell";
@@ -6,7 +6,7 @@ import { EmptyState } from "../components/shared/LoadingSpinner";
 import { useAuditLog } from "../hooks/useAuditLog";
 import { formatDateTime, formatLabel } from "../lib/format";
 import { getFadeUp, staggerContainer } from "../lib/motion";
-import { exportAuditCsv, exportAuditPdf } from "../api/apiClient";
+import { exportAuditCsv, exportAuditPdf, getAuditLog } from "../api/apiClient";
 import type { AuditLogEntry } from "../types/interfaces";
 import ReactECharts from "echarts-for-react";
 
@@ -16,11 +16,22 @@ interface Props {
 
 export default function Audit({ extraEntries = [] }: Props) {
   const { log: seedLog } = useAuditLog();
-  const log = [...extraEntries, ...seedLog];
-  const fadeUp = getFadeUp();
-
+  const [dbEntries, setDbEntries] = useState<AuditLogEntry[]>([]);
   const [exporting, setExporting] = useState<"csv" | "pdf" | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getAuditLog()
+      .then((data) => {
+        if (data?.entries && Array.isArray(data.entries)) {
+          setDbEntries(data.entries);
+        }
+      })
+      .catch(() => { });
+  }, []);
+
+  const log = [...extraEntries, ...dbEntries, ...seedLog];
+  const fadeUp = getFadeUp();
 
   const handleExport = async (format: "csv" | "pdf") => {
     setExporting(format);

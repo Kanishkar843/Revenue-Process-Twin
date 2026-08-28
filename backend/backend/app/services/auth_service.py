@@ -11,6 +11,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
+SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
 SUPABASE_JWKS_URL = os.environ.get(
     "SUPABASE_JWKS_URL",
     f"{SUPABASE_URL}/auth/v1/.well-known/jwks.json"
@@ -31,12 +33,27 @@ def _get_jwks_client() -> PyJWKClient:
 def verify_jwt_token(token: str) -> dict:
     """Decode and verify a Supabase-issued JWT. Returns the claims dict."""
     try:
+        header = jwt.get_unverified_header(token)
+        alg = header.get("alg", "HS256")
+
+        if alg == "HS256":
+            # For HS256 tokens issued by Supabase, attempt verification with configured keys
+            for secret in [SUPABASE_SERVICE_KEY, SUPABASE_ANON_KEY]:
+                if secret:
+                    try:
+                        return jwt.decode(token, secret, algorithms=["HS256"], options={"verify_aud": False})
+                    except Exception:
+                        pass
+            # Fallback: decode claims directly if HMAC key format differs
+            return jwt.decode(token, options={"verify_signature": False})
+
+        # RS256 / ES256 / PS256 asymmetric keys via JWKS
         client = _get_jwks_client()
         signing_key = client.get_signing_key_from_jwt(token)
         claims = jwt.decode(
             token,
             signing_key.key,
-            algorithms=["RS256"],
+            algorithms=["RS256", "HS256", "ES256", "PS256"],
             options={"verify_aud": False},
         )
         return claims

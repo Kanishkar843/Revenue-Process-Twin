@@ -195,19 +195,17 @@ export default function CustomerDetail({ onAuditAppend }: { onAuditAppend?: (ent
               </div>
 
               {/* Connected Entity Graph */}
-              {explain?.graph_links && (
-                <div className="card p-5">
-                  <h3 className="text-sm font-bold text-[var(--color-ink)] mb-3 flex items-center gap-2">
-                    <Sparkles size={16} className="text-amber-500" />
-                    Connected Entity Heuristic Graph ({explain.graph_links.heuristic})
-                  </h3>
-                  <NetworkGraphChart
-                    heuristic={explain.graph_links.heuristic}
-                    entities={explain.graph_links.connected_entities}
-                    customerId={id}
-                  />
-                </div>
-              )}
+              <div className="card p-5">
+                <h3 className="text-sm font-bold text-[var(--color-ink)] mb-3 flex items-center gap-2">
+                  <Sparkles size={16} className="text-amber-500" />
+                  Connected Entity Heuristic Graph ({explain?.graph_links?.heuristic || "GH01: Account Topology"})
+                </h3>
+                <NetworkGraphChart
+                  heuristic={explain?.graph_links?.heuristic || "GH01: Account Topology"}
+                  entities={explain?.graph_links?.connected_entities || []}
+                  customerId={id}
+                />
+              </div>
             </div>
 
             {/* Right Col: Counterfactual & Action */}

@@ -1,4 +1,6 @@
 -- Authoritative Schema for Revenue Process Twin SQLite Database
+DROP TABLE IF EXISTS business_profiles;
+
 DROP TABLE IF EXISTS audit_log;
 
 DROP TABLE IF EXISTS alerts;
@@ -15,8 +17,20 @@ DROP TABLE IF EXISTS invoices;
 
 DROP TABLE IF EXISTS customers;
 
+CREATE TABLE business_profiles (
+    user_id TEXT PRIMARY KEY,
+    email TEXT,
+    company_name TEXT,
+    business_type TEXT,
+    company_size TEXT,
+    revenue_model TEXT,
+    currency TEXT DEFAULT 'INR',
+    created_at TEXT DEFAULT(datetime('now'))
+);
+
 CREATE TABLE customers (
     customer_id TEXT PRIMARY KEY,
+    user_id TEXT DEFAULT 'system',
     name TEXT NOT NULL,
     segment TEXT NOT NULL, -- e.g. enterprise, smb
     plan TEXT NOT NULL,
@@ -27,6 +41,7 @@ CREATE TABLE customers (
 
 CREATE TABLE invoices (
     invoice_id TEXT PRIMARY KEY,
+    user_id TEXT DEFAULT 'system',
     customer_id TEXT NOT NULL REFERENCES customers (customer_id),
     issue_date TEXT NOT NULL,
     due_date TEXT NOT NULL,
@@ -38,6 +53,7 @@ CREATE TABLE invoices (
 
 CREATE TABLE payments (
     payment_id TEXT PRIMARY KEY,
+    user_id TEXT DEFAULT 'system',
     invoice_id TEXT NOT NULL REFERENCES invoices (invoice_id),
     customer_id TEXT NOT NULL REFERENCES customers (customer_id),
     amount_paise INTEGER NOT NULL,
@@ -49,6 +65,7 @@ CREATE TABLE payments (
 
 CREATE TABLE transactions (
     txn_id TEXT PRIMARY KEY,
+    user_id TEXT DEFAULT 'system',
     customer_id TEXT NOT NULL REFERENCES customers (customer_id),
     amount_paise INTEGER NOT NULL,
     type TEXT NOT NULL, -- purchase|refund|chargeback|adjustment
@@ -57,6 +74,7 @@ CREATE TABLE transactions (
 
 CREATE TABLE renewals (
     renewal_id TEXT PRIMARY KEY,
+    user_id TEXT DEFAULT 'system',
     customer_id TEXT NOT NULL REFERENCES customers (customer_id),
     due_date TEXT NOT NULL,
     status TEXT NOT NULL, -- renewed|missed|failed_payment|pending
@@ -66,9 +84,10 @@ CREATE TABLE renewals (
 
 CREATE TABLE event_log (
     event_id TEXT PRIMARY KEY,
+    user_id TEXT DEFAULT 'system',
     entity_id TEXT NOT NULL, -- customer_id / invoice_id / renewal_id
     entity_type TEXT NOT NULL, -- customer|invoice|renewal|payment
-    event_type TEXT NOT NULL, -- CONTRACT_APPROVED|INVOICE_ISSUED|DISCOUNT_APPLIED|DISCOUNT_APPROVED|PAYMENT_ATTEMPTED|PAYMENT_SUCCEEDED|PAYMENT_FAILED|RENEWAL_DUE|RENEWAL_SUCCEEDED|RENEWAL_MISSED|REFUND_ISSUED|CHARGEBACK_RAISED|USAGE_DECLINE_FLAGGED
+    event_type TEXT NOT NULL,
     event_ts TEXT NOT NULL,
     metadata_json TEXT,
     created_at TEXT NOT NULL
@@ -76,6 +95,7 @@ CREATE TABLE event_log (
 
 CREATE TABLE alerts (
     alert_id TEXT PRIMARY KEY,
+    user_id TEXT DEFAULT 'system',
     customer_id TEXT NOT NULL REFERENCES customers (customer_id),
     rule_id TEXT NOT NULL, -- R01-R11 | GF01-GF08 | GH01-GH05
     leak_type TEXT NOT NULL,
@@ -95,6 +115,7 @@ CREATE TABLE alerts (
 
 CREATE TABLE audit_log (
     log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT DEFAULT 'system',
     alert_id TEXT,
     action_type TEXT NOT NULL,
     actor TEXT NOT NULL, -- user|system|agent
@@ -104,23 +125,35 @@ CREATE TABLE audit_log (
 );
 
 -- Indexes
+CREATE INDEX idx_customers_user_id ON customers (user_id);
+
+CREATE INDEX idx_invoices_user_id ON invoices (user_id);
+
 CREATE INDEX idx_invoices_customer ON invoices (customer_id);
 
 CREATE INDEX idx_invoices_status ON invoices (status);
 
 CREATE INDEX idx_invoices_due_date ON invoices (due_date);
 
+CREATE INDEX idx_payments_user_id ON payments (user_id);
+
 CREATE INDEX idx_payments_invoice ON payments (invoice_id);
 
 CREATE INDEX idx_payments_status ON payments (status);
+
+CREATE INDEX idx_transactions_user_id ON transactions (user_id);
 
 CREATE INDEX idx_transactions_customer_date ON transactions (customer_id, txn_ts);
 
 CREATE INDEX idx_transactions_type ON transactions(type);
 
+CREATE INDEX idx_renewals_user_id ON renewals (user_id);
+
 CREATE INDEX idx_renewals_customer ON renewals (customer_id);
 
 CREATE INDEX idx_renewals_status ON renewals (status);
+
+CREATE INDEX idx_alerts_user_id ON alerts (user_id);
 
 CREATE INDEX idx_alerts_customer ON alerts (customer_id);
 
@@ -128,4 +161,8 @@ CREATE INDEX idx_alerts_severity ON alerts (severity);
 
 CREATE INDEX idx_alerts_status ON alerts (status);
 
+CREATE INDEX idx_event_log_user_id ON event_log (user_id);
+
 CREATE INDEX idx_event_log_entity ON event_log (entity_id, event_ts);
+
+CREATE INDEX idx_audit_log_user_id ON audit_log (user_id);

@@ -40,13 +40,29 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# CORS configuration for Vite frontend
+# Run database migration on startup to guarantee user_id columns & business_profiles exist
+@app.on_event("startup")
+def startup_db_migration():
+    try:
+        from app.db.migrations.add_user_id import migrate
+        migrate()
+    except Exception as e:
+        print(f"Startup DB Migration warning: {e}")
+
+# CORS configuration for local dev and Render production frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "https://revenue-process-twin-frontend.onrender.com",
+    ],
+    allow_origin_regex=r"https://.*\.onrender\.com",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Core 7 Analytical Routes

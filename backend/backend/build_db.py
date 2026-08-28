@@ -12,6 +12,13 @@ STAGING_DIR = "data/staging"
 def build_database():
     print("Building database from staging CSVs...")
     
+    if os.path.exists(DB_PATH) and os.path.getsize(DB_PATH) > 1000:
+        print(f"Database already exists at {DB_PATH} ({os.path.getsize(DB_PATH)} bytes). Skipping rebuild.")
+        return
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+
     # 1. Initialize SQLite schema
     if os.path.exists(DB_PATH):
         os.remove(DB_PATH)
@@ -23,6 +30,11 @@ def build_database():
         schema_script = f.read()
     cursor.executescript(schema_script)
     conn.commit()
+
+    if not os.path.exists(STAGING_DIR):
+        print(f"Staging directory {STAGING_DIR} not found. DB initialized with schema.")
+        conn.close()
+        return
 
     # Load staging datasets
     df_retail = pd.read_csv(f"{STAGING_DIR}/online_retail_ii.csv")

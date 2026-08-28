@@ -1,0 +1,13 @@
+__pycache__
+*.pyc
+*.pyo
+.git
+.venv
+venv
+data/staging
+data/raw
+*.zip
+*.tar.gz
+tests/__pycache__
+app/__pycache__
+app/*/__pycache__

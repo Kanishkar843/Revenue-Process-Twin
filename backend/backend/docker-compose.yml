@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  revenue-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: revenue_process_twin_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - NARRATOR_MODE=mock
+      - OLLAMA_HOST=http://ollama:11434
+      - REVENUE_DB_PATH=data/final/revenue_leaks.db
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: revenue_ollama_service
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_storage:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_storage:

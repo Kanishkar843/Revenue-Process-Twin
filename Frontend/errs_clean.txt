@@ -1,0 +1,6 @@
+src/components/charts/ContributingFactorsChart.tsx(77,7): error TS2322: Type '{ click: (params: { dataIndex: number; }) => void; } | { click?: undefined; }' is not assignable to type 'Record<string, Function> | undefined'.
+  Type '{ click?: undefined; }' is not assignable to type 'Record<string, Function>'.
+    Property 'click' is incompatible with index signature.
+      Type 'undefined' is not assignable to type 'Function'.
+src/pages/CustomerDetail.tsx(244,50): error TS2322: Type 'number' is not assignable to type '"sm" | "md" | "lg" | undefined'.
+src/pages/Dashboard.tsx(35,76): error TS18048: 'summary' is possibly 'undefined'.

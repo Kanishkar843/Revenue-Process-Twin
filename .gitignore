@@ -1,0 +1,100 @@
+# ==========================================
+# Revenue Process Twin — .gitignore
+# ==========================================
+
+# 1. Datasets & Ingestion Data
+data/raw/
+data/staging/
+data/uploads/
+data/final/*.db
+*.csv
+*.xlsx
+*.xls
+*.zip
+
+# 2. Trained ML Models & Heavy LLM Weights
+ml/models/
+models/
+*.pkl
+*.joblib
+*.h5
+*.onnx
+*.bin
+*.gguf
+*.safetensors
+*.pt
+*.pth
+
+# 3. Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# 4. Heavy Binaries & Executables
+*.exe
+OllamaSetup.exe
+file_list.txt
+
+# 5. Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# 6. Node.js & Frontend Build Artifacts
+node_modules/
+dist/
+.vite/
+
+# 7. Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# 8. IDEs & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# 9. Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 10. Distribution & Build Artifacts
+build/
+devel/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg

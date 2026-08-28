@@ -1,0 +1,51 @@
+=== NEW TOTAL ALERTS: 4554 ===
+
+=== RULE_ID & LEAK_TYPE BREAKDOWN ===
+Rule GF01 (overdue_invoice): 4393 alerts
+Rule R01 (invoice_overdue): 65 alerts
+Rule R04 (high_refund_ratio): 35 alerts
+Rule GF02 (over_discount): 16 alerts
+Rule GF04 (spurious_refund): 16 alerts
+Rule R03 (over_discount): 16 alerts
+Rule GF08 (silent_churn): 2 alerts
+Rule R08 (duplicate_invoice): 2 alerts
+Rule R09 (silent_churn): 2 alerts
+Rule GF03 (missed_renewal): 1 alerts
+Rule GF05 (duplicate_payment): 1 alerts
+Rule GF06 (contractless_enterprise_discount): 1 alerts
+Rule R02 (duplicate_payment): 1 alerts
+Rule R05 (missed_renewal): 1 alerts
+Rule R07 (missed_invoice): 1 alerts
+Rule R11 (contractless_enterprise_discount): 1 alerts
+
+=== SAMPLE NEW ALERTS (First 30) ===
+{'alert_id': 'ALT-0001-R01', 'customer_id': 'CUST-0001', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 34500.0, 'rec_rs': 11385.0}
+{'alert_id': 'ALT-0002-R01', 'customer_id': 'CUST-0002', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 34000.0, 'rec_rs': 11220.0}
+{'alert_id': 'ALT-0003-R01', 'customer_id': 'CUST-0003', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'high', 'leak_rs': 61000.0, 'rec_rs': 20130.0}
+{'alert_id': 'ALT-0004-R01', 'customer_id': 'CUST-0004', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'high', 'leak_rs': 57000.0, 'rec_rs': 18810.0}
+{'alert_id': 'ALT-0005-R01', 'customer_id': 'CUST-0005', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 37000.0, 'rec_rs': 12210.0}
+{'alert_id': 'ALT-0006-R01', 'customer_id': 'CUST-0006', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'high', 'leak_rs': 52500.0, 'rec_rs': 17325.0}
+{'alert_id': 'ALT-0007-R01', 'customer_id': 'CUST-0007', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'high', 'leak_rs': 61000.0, 'rec_rs': 20130.0}
+{'alert_id': 'ALT-0008-R01', 'customer_id': 'CUST-0008', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 36320.0, 'rec_rs': 11985.6}
+{'alert_id': 'ALT-0009-R01', 'customer_id': 'CUST-0009', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 46000.0, 'rec_rs': 15180.0}
+{'alert_id': 'ALT-0010-R01', 'customer_id': 'CUST-0010', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'high', 'leak_rs': 57000.0, 'rec_rs': 18810.0}
+{'alert_id': 'ALT-0011-R01', 'customer_id': 'CUST-0011', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 31070.0, 'rec_rs': 10253.1}
+{'alert_id': 'ALT-0012-R01', 'customer_id': 'CUST-0012', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'high', 'leak_rs': 57000.0, 'rec_rs': 18810.0}
+{'alert_id': 'ALT-0013-R01', 'customer_id': 'CUST-0013', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 46000.0, 'rec_rs': 15180.0}
+{'alert_id': 'ALT-0014-R01', 'customer_id': 'CUST-0014', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 37000.0, 'rec_rs': 12210.0}
+{'alert_id': 'ALT-0015-R01', 'customer_id': 'CUST-0015', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'high', 'leak_rs': 61000.0, 'rec_rs': 20130.0}
+{'alert_id': 'ALT-0016-R01', 'customer_id': 'CUST-0016', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'high', 'leak_rs': 52500.0, 'rec_rs': 17325.0}
+{'alert_id': 'ALT-0017-R01', 'customer_id': 'CUST-0017', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 37000.0, 'rec_rs': 12210.0}
+{'alert_id': 'ALT-0018-R01', 'customer_id': 'CUST-0018', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 40000.0, 'rec_rs': 13200.0}
+{'alert_id': 'ALT-0019-R01', 'customer_id': 'CUST-0019', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 44000.0, 'rec_rs': 14520.0}
+{'alert_id': 'ALT-0020-R01', 'customer_id': 'CUST-0020', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 37000.0, 'rec_rs': 12210.0}
+{'alert_id': 'ALT-0021-R01', 'customer_id': 'CUST-0021', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'high', 'leak_rs': 55750.0, 'rec_rs': 18397.5}
+{'alert_id': 'ALT-0022-R01', 'customer_id': 'CUST-0022', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'high', 'leak_rs': 56000.0, 'rec_rs': 18480.0}
+{'alert_id': 'ALT-0023-R01', 'customer_id': 'CUST-0023', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 32000.0, 'rec_rs': 10560.0}
+{'alert_id': 'ALT-0024-R01', 'customer_id': 'CUST-0024', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 32000.0, 'rec_rs': 10560.0}
+{'alert_id': 'ALT-0025-R01', 'customer_id': 'CUST-0025', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'high', 'leak_rs': 56000.0, 'rec_rs': 18480.0}
+{'alert_id': 'ALT-0031-R01', 'customer_id': 'CUST-0031', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'high', 'leak_rs': 180000.0, 'rec_rs': 59400.0}
+{'alert_id': 'ALT-0042-R01', 'customer_id': 'CUST-0042', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'critical', 'leak_rs': 186012000.0, 'rec_rs': 61383960.0}
+{'alert_id': 'ALT-1000-R01', 'customer_id': 'CUST-1000', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 7840.0, 'rec_rs': 2587.2}
+{'alert_id': 'ALT-1001-R01', 'customer_id': 'CUST-1001', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 7014.0, 'rec_rs': 2314.62}
+{'alert_id': 'ALT-1002-R01', 'customer_id': 'CUST-1002', 'rule_id': 'R01', 'leak_type': 'invoice_overdue', 'severity': 'medium', 'leak_rs': 2092.0, 'rec_rs': 690.36}

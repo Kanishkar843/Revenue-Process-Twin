@@ -1,0 +1,84 @@
+=== TABLES & RECORD COUNTS ===
+customers: 5014 records
+invoices: 27627 records
+payments: 1648 records
+transactions: 1717 records
+renewals: 201 records
+event_log: 36983 records
+alerts: 4554 records
+audit_log: 33 records
+sqlite_sequence: 1 records
+ingestion_jobs: 1 records
+ingestion_files: 0 records
+ingestion_errors: 0 records
+streams: 0 records
+
+=== ALERTS RULE_ID BREAKDOWN ===
+Rule GF01 (overdue_invoice): 4393 alerts
+Rule R01 (invoice_overdue): 65 alerts
+Rule R04 (high_refund_ratio): 35 alerts
+Rule GF02 (over_discount): 16 alerts
+Rule GF04 (spurious_refund): 16 alerts
+Rule R03 (over_discount): 16 alerts
+Rule GF08 (silent_churn): 2 alerts
+Rule R08 (duplicate_invoice): 2 alerts
+Rule R09 (silent_churn): 2 alerts
+Rule GF03 (missed_renewal): 1 alerts
+Rule GF05 (duplicate_payment): 1 alerts
+Rule GF06 (contractless_enterprise_discount): 1 alerts
+Rule R02 (duplicate_payment): 1 alerts
+Rule R05 (missed_renewal): 1 alerts
+Rule R07 (missed_invoice): 1 alerts
+Rule R11 (contractless_enterprise_discount): 1 alerts
+
+=== SAMPLE ALERTS (First 50) ===
+('ALT-0042-R01', 'CUST-0042', 'R01', 'invoice_overdue', 'high', 5000000, 1650000)
+('ALT-1001-R01', 'CUST-1001', 'R01', 'invoice_overdue', 'medium', 32500, 10725)
+('ALT-1002-R01', 'CUST-1002', 'R01', 'invoice_overdue', 'medium', 79800, 26334)
+('ALT-1003-R01', 'CUST-1003', 'R01', 'invoice_overdue', 'medium', 18000, 5940)
+('ALT-1004-R01', 'CUST-1004', 'R01', 'invoice_overdue', 'medium', 57000, 18810)
+('ALT-1005-R01', 'CUST-1005', 'R01', 'invoice_overdue', 'medium', 142500, 47025)
+('ALT-1007-R01', 'CUST-1007', 'R01', 'invoice_overdue', 'medium', 48000, 15840)
+('ALT-1008-R01', 'CUST-1008', 'R01', 'invoice_overdue', 'medium', 102600, 33858)
+('ALT-1009-R01', 'CUST-1009', 'R01', 'invoice_overdue', 'medium', 166250, 54862)
+('ALT-1010-R01', 'CUST-1010', 'R01', 'invoice_overdue', 'medium', 572000, 188760)
+('ALT-1011-R01', 'CUST-1011', 'R01', 'invoice_overdue', 'medium', 85500, 28215)
+('ALT-1012-R01', 'CUST-1012', 'R01', 'invoice_overdue', 'medium', 11400, 3762)
+('ALT-1013-R01', 'CUST-1013', 'R01', 'invoice_overdue', 'medium', 32500, 10725)
+('ALT-1014-R01', 'CUST-1014', 'R01', 'invoice_overdue', 'medium', 67200, 22176)
+('ALT-1015-R01', 'CUST-1015', 'R01', 'invoice_overdue', 'medium', 18000, 5940)
+('ALT-1016-R01', 'CUST-1016', 'R01', 'invoice_overdue', 'medium', 57000, 18810)
+('ALT-1017-R01', 'CUST-1017', 'R01', 'invoice_overdue', 'medium', 142500, 47025)
+('ALT-1019-R01', 'CUST-1019', 'R01', 'invoice_overdue', 'medium', 57000, 18810)
+('ALT-1020-R01', 'CUST-1020', 'R01', 'invoice_overdue', 'medium', 102600, 33858)
+('ALT-1021-R01', 'CUST-1021', 'R01', 'invoice_overdue', 'medium', 140000, 46200)
+('ALT-1022-R01', 'CUST-1022', 'R01', 'invoice_overdue', 'medium', 572000, 188760)
+('ALT-1023-R01', 'CUST-1023', 'R01', 'invoice_overdue', 'medium', 85500, 28215)
+('ALT-1024-R01', 'CUST-1024', 'R01', 'invoice_overdue', 'medium', 11400, 3762)
+('ALT-1025-R01', 'CUST-1025', 'R01', 'invoice_overdue', 'medium', 32500, 10725)
+('ALT-1026-R01', 'CUST-1026', 'R01', 'invoice_overdue', 'medium', 79800, 26334)
+('ALT-1027-R01', 'CUST-1027', 'R01', 'invoice_overdue', 'medium', 18000, 5940)
+('ALT-1028-R01', 'CUST-1028', 'R01', 'invoice_overdue', 'medium', 48000, 15840)
+('ALT-1029-R01', 'CUST-1029', 'R01', 'invoice_overdue', 'medium', 142500, 47025)
+('ALT-1031-R01', 'CUST-1031', 'R01', 'invoice_overdue', 'medium', 57000, 18810)
+('ALT-1032-R01', 'CUST-1032', 'R01', 'invoice_overdue', 'medium', 102600, 33858)
+('ALT-1033-R01', 'CUST-1033', 'R01', 'invoice_overdue', 'medium', 166250, 54862)
+('ALT-1034-R01', 'CUST-1034', 'R01', 'invoice_overdue', 'medium', 572000, 188760)
+('ALT-1000-R01', 'CUST-1000', 'R01', 'invoice_overdue', 'medium', 72000, 23760)
+('ALT-1006-R01', 'CUST-1006', 'R01', 'invoice_overdue', 'medium', 142500, 47025)
+('ALT-1018-R01', 'CUST-1018', 'R01', 'invoice_overdue', 'medium', 142500, 47025)
+('ALT-1030-R01', 'CUST-1030', 'R01', 'invoice_overdue', 'medium', 142500, 47025)
+('ALT-S-001-R01', 'CUST-S-001', 'R01', 'invoice_overdue', 'medium', 1500000, 495000)
+('ALT-S-002-R01', 'CUST-S-002', 'R01', 'invoice_overdue', 'medium', 450000, 148500)
+('ALT-S-003-R01', 'CUST-S-003', 'R01', 'invoice_overdue', 'medium', 3200000, 1056000)
+('ALT-0031-R01', 'CUST-0031', 'R01', 'invoice_overdue', 'high', 18000000, 5940000)
+('ALT-0004-R01', 'CUST-0004', 'R01', 'invoice_overdue', 'medium', 500000, 165000)
+('ALT-0007-R01', 'CUST-0007', 'R01', 'invoice_overdue', 'medium', 500000, 165000)
+('ALT-0010-R01', 'CUST-0010', 'R01', 'invoice_overdue', 'medium', 2500000, 825000)
+('ALT-0013-R01', 'CUST-0013', 'R01', 'invoice_overdue', 'medium', 500000, 165000)
+('ALT-0002-R01', 'CUST-0002', 'R01', 'invoice_overdue', 'medium', 100000, 33000)
+('ALT-0005-R01', 'CUST-0005', 'R01', 'invoice_overdue', 'medium', 100000, 33000)
+('ALT-0008-R01', 'CUST-0008', 'R01', 'invoice_overdue', 'medium', 2500000, 825000)
+('ALT-0011-R01', 'CUST-0011', 'R01', 'invoice_overdue', 'medium', 32000, 10560)
+('ALT-0014-R01', 'CUST-0014', 'R01', 'invoice_overdue', 'medium', 100000, 33000)
+('ALT-0003-R01', 'CUST-0003', 'R01', 'invoice_overdue', 'medium', 500000, 165000)

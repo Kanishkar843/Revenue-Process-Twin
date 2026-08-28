@@ -1,0 +1,20 @@
+﻿src/App.tsx(61,38): error TS2322: Type '{ onAuditAppend: (entry: AuditLogEntry) => void; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'onAuditAppend' does not exist on type 'IntrinsicAttributes'.
+src/components/charts/ContributingFactorsChart.tsx(77,7): error TS2322: Type '{ click: (params: { dataIndex: number; }) => void; } | { click?: undefined; }' is not assignable to type 'Record<string, Function> | undefined'.
+  Type '{ click?: undefined; }' is not assignable to type 'Record<string, Function>'.
+    Property 'click' is incompatible with index signature.
+      Type 'undefined' is not assignable to type 'Function'.
+src/hooks/useAuditLog.ts(2,22): error TS2307: Cannot find module '../mocks/mock_api.json' or its corresponding type declarations.
+src/pages/CustomerDetail.tsx(47,9): error TS2561: Object literal may only specify known properties, but 'action_id' does not exist in type 'ActionExecuteRequest'. Did you mean to write 'action'?
+src/pages/CustomerDetail.tsx(159,45): error TS2322: Type '{ factors: ContributingFactor[]; }' is not assignable to type 'IntrinsicAttributes & Props'.
+  Property 'factors' does not exist on type 'IntrinsicAttributes & Props'.
+src/pages/CustomerDetail.tsx(202,38): error TS2322: Type '{ links: GraphLinks; }' is not assignable to type 'IntrinsicAttributes & Props'.
+  Property 'links' does not exist on type 'IntrinsicAttributes & Props'.
+src/pages/CustomerDetail.tsx(238,50): error TS2322: Type 'number' is not assignable to type '"sm" | "md" | "lg" | undefined'.
+src/pages/Dashboard.tsx(35,76): error TS18048: 'summary' is possibly 'undefined'.
+src/pages/DataIngestion.tsx(1,41): error TS1484: 'DragEvent' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/pages/LiveMonitor.tsx(90,6): error TS2741: Property 'title' is missing in type '{ children: Element[]; }' but required in type 'Props'.
+src/pages/RecoveryCenter.tsx(87,6): error TS2741: Property 'title' is missing in type '{ children: Element[]; }' but required in type 'Props'.
+src/pages/Reports.tsx(60,6): error TS2741: Property 'title' is missing in type '{ children: Element[]; }' but required in type 'Props'.
+src/pages/RevenueProcesses.tsx(81,6): error TS2741: Property 'title' is missing in type '{ children: Element[]; }' but required in type 'Props'.
+vite.config.ts(4,1): error TS6133: 'path' is declared but its value is never read.

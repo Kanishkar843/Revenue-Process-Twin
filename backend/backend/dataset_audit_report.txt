@@ -1,0 +1,110 @@
+=== DATASET INVENTORY REPORT ===
+
+File: backend\backend\data\staging\late_payment.csv
+  Size: 215.05 KB | Rows: 2466 | Cols: 12
+  Sample Columns: countryCode, customerID, PaperlessDate, invoiceNumber, InvoiceDate
+
+File: backend\backend\data\staging\msme.csv
+  Size: 0.15 KB | Rows: 3 | Cols: 5
+  Sample Columns: invoice_id, due_date, amount, Company_Name, Region
+
+File: backend\backend\data\staging\online_retail_ii.csv
+  Size: 146.93 KB | Rows: 1494 | Cols: 8
+  Sample Columns: Invoice, StockCode, Description, Quantity, InvoiceDate
+
+File: backend\backend\data\staging\saas.csv
+  Size: 916.01 KB | Rows: 5000 | Cols: 28
+  Sample Columns: account_id, account_name, industry, country, signup_date
+
+File: backend\backend\data\staging\telco_churn.csv
+  Size: 1203.6 KB | Rows: 7043 | Cols: 28
+  Sample Columns: customerID, gender, SeniorCitizen, Partner, Dependents
+
+File: backend\backend\data\staging\test_ingestion_100.csv
+  Size: 7.5 KB | Rows: 100 | Cols: 8
+  Sample Columns: InvoiceNo, CustomerID, Company Name, UnitPrice, Quantity
+
+File: backend\backend\data\staging\archive (1)\WA_Fn-UseC_-Telco-Customer-Churn.csv
+  Size: 954.59 KB | Rows: 7043 | Cols: 21
+  Sample Columns: customerID, gender, SeniorCitizen, Partner, Dependents
+
+File: backend\backend\data\staging\archive (2)\ravenstack_accounts.csv
+  Size: 35.79 KB | Rows: 500 | Cols: 10
+  Sample Columns: account_id, account_name, industry, country, signup_date
+
+File: backend\backend\data\staging\archive (2)\ravenstack_churn_events.csv
+  Size: 43.58 KB | Rows: 600 | Cols: 9
+  Sample Columns: churn_event_id, account_id, churn_date, reason_code, refund_amount_usd
+
+File: backend\backend\data\staging\archive (2)\ravenstack_feature_usage.csv
+  Size: 1368.06 KB | Rows: 25000 | Cols: 8
+  Sample Columns: usage_id, subscription_id, usage_date, feature_name, usage_count
+
+File: backend\backend\data\staging\archive (2)\ravenstack_subscriptions.csv
+  Size: 427.31 KB | Rows: 5000 | Cols: 14
+  Sample Columns: subscription_id, account_id, start_date, end_date, plan_tier
+
+File: backend\backend\data\staging\archive (2)\ravenstack_support_tickets.csv
+  Size: 142.19 KB | Rows: 2000 | Cols: 9
+  Sample Columns: ticket_id, account_id, submitted_at, closed_at, resolution_time_hours
+
+File: backend\backend\data\staging\archive (3)\WA_Fn-UseC_-Accounts-Receivable.csv
+  Size: 214.99 KB | Rows: 2466 | Cols: 12
+  Sample Columns: countryCode, customerID, PaperlessDate, invoiceNumber, InvoiceDate
+
+File: backend\backend\data\staging\archive (4)\msme_invoices.csv
+  Size: 0.08 KB | Rows: 3 | Cols: 3
+  Sample Columns: invoice_id, due_date, amount
+
+File: backend\backend\data\staging\archive (4)\msme_transactions.csv
+  Size: 0.3 KB | Rows: 9 | Cols: 5
+  Sample Columns: transaction_id, date, invoice_id, amount, type
+
+File: backend\backend\data\staging\archive (5)\Churn_events.csv
+  Size: 282.27 KB | Rows: 9756 | Cols: 4
+  Sample Columns: 1, 2, 2023-11-25, other
+
+File: backend\backend\data\staging\archive (5)\customers.csv
+  Size: 1016.57 KB | Rows: 24999 | Cols: 6
+  Sample Columns: 1, 2023-05-11, medium, finance, referral
+
+File: backend\backend\data\staging\archive (5)\invoices.csv
+  Size: 2950.07 KB | Rows: 50000 | Cols: 6
+  Sample Columns: 1, 1.1, 2023-05-11, 2024-05-11, 190.00
+
+File: backend\backend\data\staging\archive (5)\payments.csv
+  Size: 2664.1 KB | Rows: 50000 | Cols: 6
+  Sample Columns: 1, 1.1, 2023-05-11, 190.00, successful
+
+File: backend\backend\data\staging\archive (5)\plan_chnages.csv
+  Size: 18.6 KB | Rows: 786 | Cols: 5
+  Sample Columns: 1, 23, 1.1, 2, 2023-08-27
+
+File: backend\backend\data\staging\archive (5)\subscriptions.csv
+  Size: 888.78 KB | Rows: 24999 | Cols: 6
+  Sample Columns: 1, 1.1, 2023-05-11, Unnamed: 3, active
+
+File: backend\backend\data\staging\archive (5)\subscription_plans.csv
+  Size: 0.15 KB | Rows: 6 | Cols: 4
+  Sample Columns: 1, Free, monthly, 0.00
+
+File: backend\backend\data\staging\archive (6)\test_invoices.csv
+  Size: 587099.45 KB | Rows: 50000 | Cols: 31
+  Sample Columns: invoice_id, invoice_number, invoice_date, due_date, customer_id
+
+File: backend\backend\data\staging\archive (6)\train_invoices.csv
+  Size: 732856.33 KB | Rows: 50000 | Cols: 31
+  Sample Columns: invoice_id, invoice_number, invoice_date, due_date, customer_id
+
+File: data\sample_datasets\revenue_leakage_test.csv
+  Size: 20.34 KB | Rows: 120 | Cols: 17
+  Sample Columns: transaction_id, customer_id, customer_name, segment, plan
+
+File: backend\backend\data\staging\online+retail\Online Retail.xlsx
+  Size: 23159.52 KB | Rows: 50000 | Cols: 8
+  Sample Columns: InvoiceNo, StockCode, Description, Quantity, InvoiceDate
+
+File: backend\backend\data\staging\online+retail+ii\online_retail_II.xlsx
+  Size: 44553.01 KB | Rows: 50000 | Cols: 8
+  Sample Columns: Invoice, StockCode, Description, Quantity, InvoiceDate
+

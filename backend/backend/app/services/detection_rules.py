@@ -15,7 +15,7 @@ def _severity(leak_paise: int) -> str:
     else:
         return "low"
 
-def evaluate_rules(db_path: str, customer_id: str = None) -> List[Dict[str, Any]]:
+def evaluate_rules(db_path: str, customer_id: str = None, user_id: str = None) -> List[Dict[str, Any]]:
     """
     Evaluates rules R01-R11 and ML models on the SQLite database.
     Returns list of triggered rule alert objects.

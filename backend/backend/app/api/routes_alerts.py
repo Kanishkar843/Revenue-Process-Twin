@@ -1,6 +1,7 @@
 import json
 import sqlite3
 from typing import Optional
+from datetime import datetime
 from fastapi import APIRouter, Query, Depends
 from app.db.connection import get_connection, get_db_path
 from app.services.conformance_engine import evaluate_conformance
@@ -10,18 +11,20 @@ from app.services.auth_service import get_current_user
 
 router = APIRouter()
 
-def rebuild_alerts(db_path: str = None, force: bool = False):
-    """Evaluates detection rules and process conformance, updating the DB alerts table."""
+def rebuild_alerts(db_path: str = None, user_id: str = "system", force: bool = False):
+    """Evaluates detection rules and process conformance, updating the DB alerts table for the given user_id."""
     if not db_path:
         db_path = get_db_path()
     with get_connection() as conn:
         cursor = conn.cursor()
-        count = cursor.execute("SELECT COUNT(*) FROM alerts;").fetchone()[0]
+        count = cursor.execute("SELECT COUNT(*) FROM alerts WHERE user_id = ?;", (user_id,)).fetchone()[0]
         if count == 0 or force:
-            raw_rule_alerts = evaluate_rules(db_path)
-            raw_conf_alerts = evaluate_conformance(db_path)
+            raw_rule_alerts = evaluate_rules(db_path, user_id=user_id)
+            raw_conf_alerts = evaluate_conformance(db_path, user_id=user_id)
             seen_keys = set()
             alerts_to_insert = []
+            now_iso = datetime.utcnow().isoformat() + "Z"
+            
             for item in raw_rule_alerts + raw_conf_alerts:
                 cust_id = item["customer_id"]
                 rule_id = item["rule_id"]
@@ -29,7 +32,10 @@ def rebuild_alerts(db_path: str = None, force: bool = False):
                 if key in seen_keys:
                     continue
                 seen_keys.add(key)
-                alert_id = f"ALT-{cust_id.replace('CUST-', '')}-{rule_id}"
+                
+                # Dynamic alert_id per user to avoid collision
+                user_suffix = user_id[:6] if user_id else "sys"
+                alert_id = f"ALT-{cust_id.replace('CUST-', '')}-{rule_id}-{user_suffix}"
                 leak_type = item["leak_type"]
                 sev = item["severity"]
                 leak_paise = item["leak_amount_paise"]
@@ -41,25 +47,28 @@ def rebuild_alerts(db_path: str = None, force: bool = False):
                 rec_action = item.get("recommended_action") or CF_TEMPLATES.get("CF02", {}).get("action", "Normalize discount to plan median")
                 confidence = 0.85
                 evidence_json = json.dumps(item.get("evidence_json", {"evidence": item.get("evidence", "")}))
-                created_at = "2026-08-20T10:15:00Z"
+                
                 alerts_to_insert.append((
-                    alert_id, cust_id, rule_id, leak_type, sev, leak_paise, rec_paise,
+                    alert_id, user_id, cust_id, rule_id, leak_type, sev, leak_paise, rec_paise,
                     proc_step, exp_next, act_next, conn_entities, rec_action, confidence,
-                    evidence_json, "open", created_at
+                    evidence_json, "open", now_iso
                 ))
             
             if force:
-                cursor.execute("DELETE FROM alerts;")
-            cursor.executemany("""
-                INSERT OR REPLACE INTO alerts (
-                    alert_id, customer_id, rule_id, leak_type, severity, leak_amount_paise, recoverable_paise,
-                    process_break_step, expected_next, actual_next, connected_entities_json, recommended_action,
-                    action_confidence, evidence_json, status, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, alerts_to_insert)
+                cursor.execute("DELETE FROM alerts WHERE user_id = ?;", (user_id,))
+            
+            if alerts_to_insert:
+                cursor.executemany("""
+                    INSERT OR REPLACE INTO alerts (
+                        alert_id, user_id, customer_id, rule_id, leak_type, severity, leak_amount_paise, recoverable_paise,
+                        process_break_step, expected_next, actual_next, connected_entities_json, recommended_action,
+                        action_confidence, evidence_json, status, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, alerts_to_insert)
+                conn.commit()
 
-def sync_alerts_if_needed():
-    rebuild_alerts(force=False)
+def sync_alerts_if_needed(user_id: str = "system"):
+    rebuild_alerts(user_id=user_id, force=False)
 
 @router.get("/api/alerts")
 def get_alerts(
@@ -71,7 +80,8 @@ def get_alerts(
     current_user: dict = Depends(get_current_user),
 ):
     user_id = current_user.get("sub", "system")
-    sync_alerts_if_needed()
+    sync_alerts_if_needed(user_id=user_id)
+    
     with get_connection() as conn:
         cursor = conn.cursor()
         
@@ -112,7 +122,7 @@ def get_alerts(
             alerts_list.append({
                 "alert_id": r["alert_id"],
                 "customer_id": r["customer_id"],
-                "customer_name": r["customer_name"],
+                "customer_name": r["customer_name"] or r["customer_id"],
                 "rule_id": r["rule_id"],
                 "leak_type": r["leak_type"],
                 "severity": r["severity"],

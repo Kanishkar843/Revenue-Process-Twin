@@ -168,12 +168,31 @@ def parse_and_ingest_file(file_content: bytes, filename: str, user_id: str = "sy
             "Supported headers include: customer_id, invoice_id, payment_id, transaction_id, renewal_id."
         )
 
-    # Refresh event log and trigger alert evaluation
-    build_event_log(db_path)
+    # Refresh event log and trigger alert evaluation for this user
+    try:
+        build_event_log(db_path, user_id=user_id)
+    except Exception as e:
+        print(f"build_event_log warning: {e}")
 
-    # Re-evaluate all detection rules & process conformance, updating DB alerts table
+    # Re-evaluate all detection rules & process conformance, updating DB alerts table for this user
     from app.api.routes_alerts import rebuild_alerts
-    rebuild_alerts(db_path=db_path, force=True)
+    rebuild_alerts(db_path=db_path, user_id=user_id, force=True)
+
+    # Record immutable audit log entry
+    with get_connection() as audit_conn:
+        audit_cursor = audit_conn.cursor()
+        audit_cursor.execute("""
+            INSERT INTO audit_log (user_id, alert_id, action_type, actor, payload_json, executed_at, outcome)
+            VALUES (?, ?, ?, ?, ?, datetime('now'), ?)
+        """, (
+            user_id,
+            None,
+            "DATASET_INGESTION",
+            "user",
+            json.dumps({"filename": filename, "records_processed": records_processed, "tables_updated": list(tables_updated)}),
+            "SUCCESS"
+        ))
+        audit_conn.commit()
 
     return {
         "filename": filename,

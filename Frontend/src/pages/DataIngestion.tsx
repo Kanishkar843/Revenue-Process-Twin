@@ -509,7 +509,7 @@ export default function DataIngestion() {
             </div>
 
             <div className="mt-4 pt-3 border-t border-black/[0.06] flex items-center justify-between text-[11px] text-[var(--color-muted)]">
-              <span>FastAPI endpoint</span>
+              <span>Ingestion Endpoint</span>
               <code className="font-mono text-[10px] bg-black/[0.03] px-1.5 py-0.5 rounded">POST /api/upload</code>
             </div>
           </div>

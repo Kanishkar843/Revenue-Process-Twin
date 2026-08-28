@@ -15,13 +15,12 @@ function HealthIndicator() {
   return (
     <div className="flex items-center gap-2 rounded-full border border-black/[0.06] bg-white/80 px-3 py-1 text-xs font-medium text-[var(--color-text-secondary)] shadow-sm backdrop-blur-md">
       <span
-        className={`h-2 w-2 rounded-full ${
-          isLoading
+        className={`h-2 w-2 rounded-full ${isLoading
             ? "bg-amber-400 animate-pulse"
             : isOk
-            ? "bg-[#22c55e] shadow-[0_0_6px_rgba(34,197,94,0.5)]"
-            : "bg-red-500"
-        }`}
+              ? "bg-[#22c55e] shadow-[0_0_6px_rgba(34,197,94,0.5)]"
+              : "bg-red-500"
+          }`}
       />
       <span className="hidden sm:inline text-[11px] font-mono">{label}</span>
     </div>
@@ -69,12 +68,6 @@ export function Topbar({ title }: Props) {
           <Sparkles size={13} className="text-[var(--color-accent)]" />
           <span>Ask Narrator</span>
         </button>
-
-        <div className="hidden lg:flex items-center gap-1 text-[11px] text-[var(--color-muted)] font-mono bg-white/70 border border-black/[0.05] rounded-md px-2 py-0.5 shadow-sm">
-          <span>FastAPI</span>
-          <span className="text-black/30">|</span>
-          <span className="text-[#22c55e]">Port 8000</span>
-        </div>
       </div>
     </header>
   );

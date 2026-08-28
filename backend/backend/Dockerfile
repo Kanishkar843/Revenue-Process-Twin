@@ -19,6 +19,7 @@ COPY . /app/
 
 # Environment defaults
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
 ENV NARRATOR_MODE=mock
 ENV REVENUE_DB_PATH=data/final/revenue_leaks.db
 
